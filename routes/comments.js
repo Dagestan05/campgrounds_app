@@ -36,7 +36,6 @@ router.post("/", isLoggedIn, function (req, res) {
           // connect new comment to campground
           foundCampground.comments.push(comment);
           foundCampground.save();
-          console.log(comment)
           res.redirect("/campgrounds/" + foundCampground._id)
         }
       })
@@ -45,6 +44,38 @@ router.post("/", isLoggedIn, function (req, res) {
   })
   
 })
+// NESTED COMMENT EDIT ROUTES
+router.get("/:comment_id/edit", function(req, res) {
+  Comment.findById(req.params.comment_id, function(err, foundComment) {
+    if (err) {
+      res.redirect("back");
+    } else {
+      res.render('comments/edit', {campgroundId: req.params.id, comment: foundComment});
+    }
+  })
+})
+// Comment UPDATE
+router.put("/:comment_id", function(req, res) {
+  Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment) {
+    if (err) {
+      res.redirect('back');
+    } else {
+      res.redirect('/campgrounds/' + req.params.id);
+    }
+  })  
+})
+
+// COMMENTS DESTROY ROUTE
+router.delete('/:comment_id', function(req, res) {
+  Comment.findByIdAndRemove(req.params.comment_id, function(err) {
+    if (err) {
+      res.redirect('back')
+    } else{
+      res.redirect('/campgrounds/' + req.params.id);
+    }
+  })  
+})
+
 
 // MIDDLEWARE
 function isLoggedIn(req, res, next) {

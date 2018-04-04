@@ -13,3 +13,8 @@
 #delete-form{
   display: inline;
 }
+.flex-row {
+  display: flex;
+  flex-wrap: wrap;
+  /* justify-content: center; */
+}
