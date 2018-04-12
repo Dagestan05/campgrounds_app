@@ -1,6 +1,7 @@
 var express       = require('express'),
     bodyParser    = require('body-parser'),
     mongoose      = require('mongoose'),
+    flash         = require('connect-flash'),
     seedDB        = require("./seeds"),
     passport      = require('passport'),
     localStrategy = require('passport-local'),
@@ -25,6 +26,7 @@ app.use(express.static(__dirname + "/public"));
 
 app.use(methodOverride('_method'));
 
+app.use(flash());
 
 // seedDB(); //seed the database
 
@@ -45,6 +47,8 @@ passport.deserializeUser(User.deserializeUser());
 app.use(function(req, res, next){
   // var currentUser = req.user;
   res.locals.currentUser = req.user;
+  res.locals.errorMsg = req.flash('errorMsg');
+  res.locals.successMsg = req.flash('successMsg');
   next();
 });
 

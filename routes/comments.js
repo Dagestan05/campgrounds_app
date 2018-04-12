@@ -28,6 +28,7 @@ router.post("/", middleware.isLoggedIn, function (req, res) {
       // create new comment
       Comment.create(req.body.comment, function (err, comment) {
         if (err) {
+          req.flash("errorMsg", "Something went wrong");
           console.log(err)
         } else {
           // add username and id to comment
@@ -38,6 +39,7 @@ router.post("/", middleware.isLoggedIn, function (req, res) {
           // connect new comment to campground
           foundCampground.comments.push(comment);
           foundCampground.save();
+          req.flash("successMsg", "Successfully added comment");
           res.redirect("/campgrounds/" + foundCampground._id)
         }
       })
@@ -48,14 +50,22 @@ router.post("/", middleware.isLoggedIn, function (req, res) {
 })
 // NESTED COMMENT EDIT ROUTES
 router.get("/:comment_id/edit", middleware.checkCommentOwnership, function(req, res) {
-  Comment.findById(req.params.comment_id, function(err, foundComment) {
-    if (err) {
-      res.redirect("back");
-    } else {
-      res.render('comments/edit', {campgroundId: req.params.id, comment: foundComment});
+  Campground.findById(req.params.id, function(err, foundCampground){
+    if (err || !foundCampground) {
+      req.flash("errorMsg", "Campground not found");
+      return res.redirect("back");
     }
+    Comment.findById(req.params.comment_id, function(err, foundComment) {
+      if (err) {
+        res.redirect("back");
+      } else {
+        res.render('comments/edit', {campgroundId: req.params.id, comment: foundComment});
+      }
+    })
   })
+  
 })
+
 // Comment UPDATE
 router.put("/:comment_id", middleware.checkCommentOwnership, function(req, res) {
   Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment) {
@@ -73,6 +83,7 @@ router.delete('/:comment_id', middleware.checkCommentOwnership, function(req, re
     if (err) {
       res.redirect('back')
     } else{
+      req.flash("successMsg", "Ccomment deleted");
       res.redirect('/campgrounds/' + req.params.id);
     }
   })  

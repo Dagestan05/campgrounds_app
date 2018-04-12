@@ -21,17 +21,22 @@ router.post('/register', function(req, res) {
   User.register(newUser, req.body.password, function(err, user) {
     if (err) {
       console.log(err);
+      req.flash("errorMsg", "error was there");
+      // req.flash("errorMsg", err.message);
       return res.render("register");
     }
     passport.authenticate('local')(req, res, function() {
+      req.flash("successMsg", "Welcome to YelpCamp  " + user.username);
       res.redirect('/campgrounds');
     })
   })
 });
+ 
 // LOGIN Routes - Show
 router.get("/login", function(req, res){
   res.render('login');
 });
+
 // handling login logic
 // app.post('/login', middleware, callback) using passport.use(new localStrategy(User.authenticate()));
 router.post('/login', passport.authenticate('local',
@@ -44,15 +49,10 @@ router.post('/login', passport.authenticate('local',
 // LOgout route
 router.get('/logout', function(req, res) {
   req.logout();
+  req.flash('successMsg', "Logged you out");
   res.redirect('/campgrounds');
 })
 
-// MIDDLEWARE
-function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  } 
-  res.redirect('/login');
-}
+
 
 module.exports = router;
